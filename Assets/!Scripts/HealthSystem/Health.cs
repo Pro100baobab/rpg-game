@@ -57,4 +57,15 @@ public class Health : MonoBehaviour, IHealth
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
+
+    public void SetHealth(float health)
+    {
+        currentHealth = Mathf.Clamp(health, 0, maxHealth);
+
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        if (currentHealth <= 0f && !isDead)
+        {
+            Die();
+        }
+    }
 }

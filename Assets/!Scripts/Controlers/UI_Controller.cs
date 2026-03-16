@@ -52,7 +52,6 @@ public class UI_Controller : MonoBehaviour
         if (playerHealth != null)
         {
             playerHealth.OnHealthChanged -= UpdatePlayerHealthBar;
-            //playerHealth.OnDeath -= OnPlayerDeath;
         }
 
         if (cooldownCoroutine != null)
@@ -104,7 +103,6 @@ public class UI_Controller : MonoBehaviour
         }
 
         playerHealth.OnHealthChanged += UpdatePlayerHealthBar;
-        //playerHealth.OnDeath += OnPlayerDeath;
 
         UpdatePlayerHealthBar(playerHealth.CurrentHealth, playerHealth.MaxHealth);
     }
@@ -121,12 +119,13 @@ public class UI_Controller : MonoBehaviour
     }
 
     // Запустить кулдаун
-    private void ResetCooldown(int seconds)
+    private void ResetCooldown(int seconds, float elapsed = 0f)
     {
         if (cooldownCoroutine != null)
             StopCoroutine(cooldownCoroutine);
 
-        cooldownCoroutine = StartCoroutine(CooldownAnimation(seconds));
+        float _elapsed = Mathf.Max(0, elapsed);
+        cooldownCoroutine = StartCoroutine(CooldownAnimation(seconds, _elapsed));
     }
 
     // Сбросить кулдаун 
@@ -154,9 +153,10 @@ public class UI_Controller : MonoBehaviour
     }
 
 
-    private IEnumerator CooldownAnimation(int totalSeconds)
+    private IEnumerator CooldownAnimation(int totalSeconds, float elapsed = 0f)
     {
-        float elapsedTime = 0f;
+        float _elapsed = Mathf.Min(elapsed, totalSeconds);
+        float elapsedTime = Mathf.Max(0, _elapsed);
 
         if (cooldownMaterial == null && cooldownImage != null)
             InitializeCooldownMaterial();

@@ -35,12 +35,13 @@ public class PlayerController : MonoBehaviour, IPhysicalDamageProvider
 
     [Header("Damage Settings")]
     [SerializeField] private int physicalDamage = 20;
-    [SerializeField] private int magiclDamage = 80;
+    [SerializeField] private int magicalDamage = 80;
     [SerializeField] private SwordAttackDetection sword;
 
 
     public int PhysicalDamage => physicalDamage;
-    public int magicalDamage => magicalDamage;
+    public int MagicalDamage => magicalDamage;
+    public int CooldownTime => cooldownTime;
 
     // Input
     private Vector2 lookInput;
@@ -180,6 +181,7 @@ public class PlayerController : MonoBehaviour, IPhysicalDamageProvider
         controls.Gameplay.PhysicAttack.performed += _ => OnAttack(false); // физическая
         controls.Gameplay.MagicAttack.performed += _ => OnAttack(true); // магическая
     }
+
     private void HandleMovement()
     {
         isGrounded = controller.isGrounded;
@@ -193,6 +195,7 @@ public class PlayerController : MonoBehaviour, IPhysicalDamageProvider
         if (isAttacking) return;
 
         sword.NonUse();
+        UpdateSprintingStatus();
 
         // Локальное направление: вперёд/назад (W/S) + влево/вправо (Q/E)
         Vector3 moveDirection = (transform.forward * forwardInput + transform.right * strafeInput).normalized;
@@ -208,11 +211,6 @@ public class PlayerController : MonoBehaviour, IPhysicalDamageProvider
             motion.y = verticalVelocity * Time.deltaTime;
 
             controller.Move(motion);
-
-            if (isSprinting)
-                animator.SetBool("isSprinting", true);
-            else
-                animator.SetBool("isSprinting", false);
         }
         else
         {
@@ -308,5 +306,51 @@ public class PlayerController : MonoBehaviour, IPhysicalDamageProvider
         }
         isRolling = false;
         animator.SetBool("IsRolling", false);
+    }
+
+    private void UpdateSprintingStatus()
+    {
+        if (isSprinting)
+            animator.SetBool("isSprinting", true);
+        else
+            animator.SetBool("isSprinting", false);
+    }
+
+    // Методы и корруина для редактирования кулдауна по последнему сохранению
+    public float GetRemainingCooldown()
+    {
+        if (!isCoolDowm || cooldownCoroutine == null) return 0f;
+        float elapsed = Time.time - coolDownBeginTime;
+        return Mathf.Max(0f, cooldownTime - elapsed);
+    }
+
+    public void SetRemainingCooldown(float remaining)
+    {
+        if (cooldownCoroutine != null)
+        {
+            StopCoroutine(cooldownCoroutine);
+            cooldownCoroutine = null;
+        }
+
+        if (remaining > 0)
+        {
+            isCoolDowm = true;
+            cooldownCoroutine = StartCoroutine(CooldownWithTime(remaining));
+        }
+        else
+        {
+            isCoolDowm = false;
+        }
+    }
+
+    private IEnumerator CooldownWithTime(float duration)
+    {
+        float startTime = Time.time;
+        while (Time.time < startTime + duration)
+        {
+            yield return null;
+        }
+        isCoolDowm = false;
+        cooldownCoroutine = null;
     }
 }

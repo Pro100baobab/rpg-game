@@ -4,18 +4,19 @@ using UnityEngine;
 public class GameplayController : IDisposable
 {
     private readonly GameplayView _view;
-    private readonly ISaveService _save;
+    private readonly GameInteractor _interactor;
+
     private readonly IAudioService _audio;
     private readonly ISceneLoader _sceneLoader;
 
     private readonly AudioClip _buttonClickClip;
     private readonly AudioClip _buttonHoverClip;
 
-    public GameplayController(GameplayView view, IAudioService audio, ISaveService save, ISceneLoader sceneLoader,
+    public GameplayController(GameplayView view, IAudioService audio, GameInteractor interactor, ISceneLoader sceneLoader,
                               AudioClip buttonClickClip, AudioClip buttonHoverClip)
     {
         _view = view;
-        _save = save;
+        _interactor = interactor;
         _audio = audio;
         _sceneLoader = sceneLoader;
         _buttonClickClip = buttonClickClip;
@@ -40,6 +41,7 @@ public class GameplayController : IDisposable
 
     private void HandleSave()
     {
+        _interactor.SaveGame();
         _audio.PlaySFX(_buttonClickClip);
 
         Debug.Log("Игра сохранена");
@@ -48,9 +50,10 @@ public class GameplayController : IDisposable
 
     private void HandleLoad()
     {
-        _audio.PlaySFX(_buttonClickClip);
+        if (_interactor.LoadGame()) Debug.Log("Игра загружена");
+        else Debug.LogWarning("Нет сохранения");
 
-        Debug.Log("Игра загружена");
+        _audio.PlaySFX(_buttonClickClip);
         _view.ShowMenu(false);
     }
 
