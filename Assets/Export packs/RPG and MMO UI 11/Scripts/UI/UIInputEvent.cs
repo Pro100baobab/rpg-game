@@ -56,7 +56,7 @@ namespace DuloGames.UI
             catch (ArgumentException)
             {
                 this.enabled = false;
-                Debug.LogWarning("Input \"" + this.m_InputName + "\" used by game object \"" + gameObject.name + "\" is not defined.");
+                //Debug.LogWarning("Input \"" + this.m_InputName + "\" used by game object \"" + gameObject.name + "\" is not defined.");
             }
         }
     }

@@ -42,9 +42,10 @@ public class GameplayEntrypoint : MonoBehaviour
 
 
         var repository = new GameRepository(saveService);
-        var interactor = new GameInteractor(repository, _model);
+        var saveInteractor = new GameSaveInteractor(repository, _model);
+        var loadInteractor = new GameLoadInteractor(repository, _model);
 
-        _controller = new GameplayController(gameplayView, audioService, interactor, sceneLoader, buttonClickClip, buttonHoverClip);
+        _controller = new GameplayController(gameplayView, audioService, saveInteractor, loadInteractor, sceneLoader, buttonClickClip, buttonHoverClip);
     }
 
     private void OnDestroy() => _controller?.Dispose();

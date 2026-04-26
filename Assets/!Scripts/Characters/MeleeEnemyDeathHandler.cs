@@ -28,7 +28,9 @@ public class MeleeEnemyDeathHandler : MonoBehaviour
     {
         if (health != null)
             health.OnDeath -= HandleDeath;
-        EventSystem.Instance.OnRestart -= HandleRestart;
+
+        if (EventSystem.Instance != null)
+            EventSystem.Instance.OnRestart -= HandleRestart;
     }
 
     private void SetUp() => EventSystem.Instance.OnRestart += HandleRestart;

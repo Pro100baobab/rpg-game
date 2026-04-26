@@ -4,7 +4,8 @@ using UnityEngine;
 public class GameplayController : IDisposable
 {
     private readonly GameplayView _view;
-    private readonly GameInteractor _interactor;
+    private readonly GameSaveInteractor _saveInteractor;
+    private readonly GameLoadInteractor _loadInteractor;
 
     private readonly IAudioService _audio;
     private readonly ISceneLoader _sceneLoader;
@@ -12,11 +13,12 @@ public class GameplayController : IDisposable
     private readonly AudioClip _buttonClickClip;
     private readonly AudioClip _buttonHoverClip;
 
-    public GameplayController(GameplayView view, IAudioService audio, GameInteractor interactor, ISceneLoader sceneLoader,
+    public GameplayController(GameplayView view, IAudioService audio, GameSaveInteractor saveInteractor, GameLoadInteractor loadInteractor, ISceneLoader sceneLoader,
                               AudioClip buttonClickClip, AudioClip buttonHoverClip)
     {
         _view = view;
-        _interactor = interactor;
+        _saveInteractor = saveInteractor;
+        _loadInteractor = loadInteractor;
         _audio = audio;
         _sceneLoader = sceneLoader;
         _buttonClickClip = buttonClickClip;
@@ -41,7 +43,7 @@ public class GameplayController : IDisposable
 
     private void HandleSave()
     {
-        _interactor.SaveGame();
+        _saveInteractor.SaveGame();
         _audio.PlaySFX(_buttonClickClip);
 
         Debug.Log("Игра сохранена");
@@ -50,7 +52,7 @@ public class GameplayController : IDisposable
 
     private void HandleLoad()
     {
-        if (_interactor.LoadGame()) Debug.Log("Игра загружена");
+        if (_loadInteractor.LoadGame()) Debug.Log("Игра загружена");
         else Debug.LogWarning("Нет сохранения");
 
         _audio.PlaySFX(_buttonClickClip);

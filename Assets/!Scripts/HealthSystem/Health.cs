@@ -18,7 +18,11 @@ public class Health : MonoBehaviour, IHealth
 
     private void OnEnable() => Invoke("SetUp", 1f);
 
-    private void OnDisable() => EventSystem.Instance.OnRestart -= ResetHealth;
+    private void OnDisable()
+    {
+        if (EventSystem.Instance != null)
+            EventSystem.Instance.OnRestart -= ResetHealth;
+    }
 
     private void SetUp()
     {
