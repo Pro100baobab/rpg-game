@@ -5,6 +5,7 @@ public class GameData
 {
     public PlayerData player;
     public List<EnemyData> enemies;
+    public bool isPeacefulMode;
 }
 
 [System.Serializable]

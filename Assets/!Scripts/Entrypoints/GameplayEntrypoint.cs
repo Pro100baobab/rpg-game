@@ -37,7 +37,8 @@ public class GameplayEntrypoint : MonoBehaviour
         _model = new GameModel
         {
             Player = player,
-            Enemies = new List<GameObject>(enemyObjects)
+            Enemies = new List<GameObject>(enemyObjects),
+            IsPeacefulMode = true
         };
 
 
@@ -45,7 +46,7 @@ public class GameplayEntrypoint : MonoBehaviour
         var saveInteractor = new GameSaveInteractor(repository, _model);
         var loadInteractor = new GameLoadInteractor(repository, _model);
 
-        _controller = new GameplayController(gameplayView, audioService, saveInteractor, loadInteractor, sceneLoader, buttonClickClip, buttonHoverClip);
+        _controller = new GameplayController(gameplayView, audioService, saveInteractor, loadInteractor, sceneLoader, buttonClickClip, buttonHoverClip, _model);
     }
 
     private void OnDestroy() => _controller?.Dispose();

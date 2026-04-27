@@ -2,29 +2,64 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class MeleeEnemy : MonoBehaviour, IPhysicalDamageProvider
+public class MeleeEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysicalDamageProvider
 {
     [Header("References")]
     [SerializeField] private Transform player;
     [SerializeField] private Animator animator;
     [SerializeField] private NavMeshAgent agent;
+    [SerializeField] private SwordAttackDetection sword;
 
     [Header("Settings")]
     [SerializeField] private float detectionRange = 15f;
     [SerializeField] private float attackRange = 3f;
     [SerializeField] private float attackCooldown = 2f;
-
+    [SerializeField] private float attackDuration = 2.3f;   // длительность анимации атаки
+    [SerializeField] private float rotationSpeed = 5f;
+    [SerializeField] private float fleeHealthPercent = 0.3f; // при 30% HP в мирном режиме убегает
     [Header("Damage")]
     [SerializeField] private int physicalDamage = 10;
-    [SerializeField] private SwordAttackDetection sword;
 
     public int PhysicalDamage => physicalDamage;
 
-    private float lastAttackTime;
-    private bool isDead = false;
+    // IEnemyContext
+    public Animator Animator => animator;
+    public NavMeshAgent Agent => agent;
+    public Transform Transform => transform;
+    public Transform PlayerTransform => player;
+    public IHealth Health { get; private set; }
+    public IEnemySettings Settings => this;
+    public bool IsPeacefulMode => GameModel.Instance != null && GameModel.Instance.IsPeacefulMode;
 
-    public void Die() => isDead = true;
-    public void Revival() => isDead = false;
+
+    // IEnemySettings
+    float IEnemySettings.DetectionRange => detectionRange;
+    float IEnemySettings.AttackRange => attackRange;
+    float IEnemySettings.IdealCombatDistance => 0f;
+    float IEnemySettings.AttackCooldown => attackCooldown;
+    float IEnemySettings.AttackDuration => attackDuration;
+    float IEnemySettings.RotationSpeed => rotationSpeed;
+    float IEnemySettings.FleeHealthPercent => fleeHealthPercent;
+
+
+    private EnemyStateMachine stateMachine;
+
+
+    public void HandleDeath()
+    {
+        stateMachine?.ChangeState(new DeadState(stateMachine));
+    }
+
+    public void HandleRestart()
+    {
+        stateMachine?.ChangeState(new IdleState(stateMachine));
+        agent.isStopped = false;
+    }
+
+    private void Awake()
+    {
+        Health = GetComponent<IHealth>();
+    }
 
     private void Start()
     {
@@ -32,72 +67,42 @@ public class MeleeEnemy : MonoBehaviour, IPhysicalDamageProvider
         if (animator == null) animator = GetComponent<Animator>();
         if (agent == null) agent = GetComponent<NavMeshAgent>();
 
-        agent.isStopped = false;
+        stateMachine = new EnemyStateMachine(this);
+        stateMachine.Initialize(new IdleState(stateMachine));
+
+        // ѕодписка на рестарт
+        if (EventSystem.Instance != null)
+            EventSystem.Instance.OnRestart += HandleRestart;
     }
 
     private void Update()
     {
-        if (player == null || isDead) return;
-
-        float distance = Vector3.Distance(transform.position, player.position);
-
-        if (distance <= attackRange)
-        {
-            if (Time.time >= lastAttackTime + attackCooldown)
-            {
-                Attack();
-            }
-            else
-            {
-                agent.isStopped = true;
-                RotateTowards(player.position);
-                animator.SetFloat("Speed", 0f);
-            }
-        }
-
-        else if (distance <= detectionRange)
-        {
-            agent.isStopped = false;
-            agent.SetDestination(player.position);
-            RotateTowards(player.position);
-            animator.SetFloat("Speed", agent.velocity.magnitude);
-        }
-        else
-        {
-            agent.isStopped = true;
-            animator.SetFloat("Speed", 0f);
-        }
+        stateMachine?.Update();
     }
 
-    // Ёто всегда физиечска€ атака
-    private void Attack()
+    // IEnemyContext методы атаки
+    public void PerformAttack()
     {
         sword.Use();
-
         int attackIndex = Random.Range(1, 9);
         animator.SetInteger("AttackIndex", attackIndex);
         animator.SetTrigger("Attack");
-        lastAttackTime = Time.time;
-
-        agent.isStopped = true;
-        StartCoroutine(ResetSwordUsing());
     }
 
-    private void RotateTowards(Vector3 targetPosition)
+    public void OnAttackFinished()
     {
-        Vector3 direction = (targetPosition - transform.position).normalized;
-        direction.y = 0f;
-        if (direction.magnitude > 0.1f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
-        }
-    }
-
-    private IEnumerator ResetSwordUsing()
-    {
-        yield return new WaitForSeconds(2.3f);
         sword.NonUse();
+    }
+
+    public void PerformStrongAttack() { }
+    public void PerformMagicAttack() { }
+    public void PerformSummon() { } // не используетс€
+
+    private void OnDestroy()
+    {
+        stateMachine?.Dispose();
+        if (EventSystem.Instance != null)
+            EventSystem.Instance.OnRestart -= HandleRestart;
     }
 
     private void OnDrawGizmosSelected()

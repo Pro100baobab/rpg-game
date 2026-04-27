@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EvilWatcher : MonoBehaviour
+public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
 {
     [Header("References")]
     [SerializeField] private Transform player;
@@ -12,16 +12,47 @@ public class EvilWatcher : MonoBehaviour
     [SerializeField] private float chaseRange = 15f;
     [SerializeField] private float attackRange = 8f;
     [SerializeField] private float idealRange = 7f;
-    [SerializeField] private float rotationSpeed = 5f;
-
-    [Header("Combat")]
     [SerializeField] private float attackCooldown = 2f;
+    [SerializeField] private float attackDuration = 2f;      // длительность анимации атаки
+    [SerializeField] private float rotationSpeed = 5f;
+    [SerializeField] private float fleeHealthPercent = 0.3f;
 
-    private float lastAttackTime;
-    private bool isDead = false;
+    // IEnemyContext
+    public Animator Animator => animator;
+    public NavMeshAgent Agent => agent;
+    public Transform Transform => transform;
+    public Transform PlayerTransform => player;
+    public IHealth Health { get; private set; }
+    public IEnemySettings Settings => this;
+    public bool IsPeacefulMode => GameModel.Instance != null && GameModel.Instance.IsPeacefulMode;
 
-    public void Die() => isDead = true;
-    public void Revival() => isDead = false;
+    // IEnemySettings
+    float IEnemySettings.DetectionRange => chaseRange;
+    float IEnemySettings.AttackRange => attackRange;
+    float IEnemySettings.IdealCombatDistance => idealRange;
+    float IEnemySettings.AttackCooldown => attackCooldown;
+    float IEnemySettings.AttackDuration => attackDuration;
+    float IEnemySettings.RotationSpeed => rotationSpeed;
+    float IEnemySettings.FleeHealthPercent => fleeHealthPercent;
+
+
+    private EnemyStateMachine stateMachine;
+
+    public void HandleDeath()
+    {
+        stateMachine?.ChangeState(new DeadState(stateMachine));
+    }
+
+    public void HandleRestart()
+    {
+        stateMachine?.ChangeState(new IdleState(stateMachine));
+        agent.isStopped = false;
+    }
+
+    private void Awake()
+    {
+        Health = GetComponent<IHealth>();
+    }
 
     private void Start()
     {
@@ -29,99 +60,37 @@ public class EvilWatcher : MonoBehaviour
         if (animator == null) animator = GetComponent<Animator>();
         if (agent == null) agent = GetComponent<NavMeshAgent>();
 
-        agent.isStopped = false;
+        stateMachine = new EnemyStateMachine(this);
+        stateMachine.Initialize(new IdleState(stateMachine));
+
+        if (EventSystem.Instance != null)
+            EventSystem.Instance.OnRestart += HandleRestart;
     }
+
 
     private void Update()
     {
-        if (isDead || player == null) return;
-
-        float distance = Vector3.Distance(transform.position, player.position);
-
-        if (distance <= attackRange)
-        {
-            // Проверка на кулдаун атаки
-            if (Time.time >= lastAttackTime + attackCooldown)
-                Attack();
-
-            else
-            {
-                RotateTowards(player.position);
-                HandleMovement(); // Для корректкировки идеального расстояния
-            }
-        }
-
-        else if (distance <= chaseRange)
-            HandleMovement();
-
-        else
-        {
-            agent.isStopped = true;
-            animator.SetFloat("Speed", 0f);
-        }
+        stateMachine?.Update();
     }
 
-    private void HandleMovement()
+    private void OnDestroy()
     {
-        Vector3 directionToPlayer = (player.position - transform.position).normalized;
-        float distance = Vector3.Distance(transform.position, player.position);
-
-        Vector3 moveDirection;
-        if (distance < attackRange)
-        {
-            moveDirection = -directionToPlayer;
-        }
-
-        else if (distance > idealRange)
-        {
-            moveDirection = directionToPlayer;
-        }
-
-        else
-        {
-            moveDirection = Vector3.zero;
-        }
-
-        RotateTowards(player.position);
-
-        if (moveDirection != Vector3.zero)
-        {
-            agent.isStopped = false;
-
-            Vector3 targetPosition = transform.position + moveDirection;
-            agent.SetDestination(targetPosition);
-
-            animator.SetFloat("Speed", agent.velocity.magnitude);
-        }
-        else
-        {
-            agent.isStopped = true;
-            animator.SetFloat("Speed", 0f);
-        }
+        stateMachine?.Dispose();
+        if (EventSystem.Instance != null)
+            EventSystem.Instance.OnRestart -= HandleRestart;
     }
 
-    // Это всегда магическая атака
-    private void Attack()
+    public void PerformAttack()
     {
-        int attackIndex = Random.Range(1, 2); // Специально только 1 (в дальнейшем будет расширено)
+        int attackIndex = Random.Range(1, 2);
         animator.SetInteger("AttackIndex", attackIndex);
         animator.SetTrigger("Attack");
-        lastAttackTime = Time.time;
-
-        agent.isStopped = true;
     }
 
-    private void RotateTowards(Vector3 targetPosition)
-    {
-        Vector3 direction = (targetPosition - transform.position).normalized;
-        direction.y = 0f;
-
-        if (direction.magnitude > 0.1f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-        }
-    }
+    public void PerformStrongAttack() { }
+    public void PerformMagicAttack() { }
+    public void OnAttackFinished() { } // анимация сама нанесёт урон через ивент
+    public void PerformSummon() { }
 
     // Визуализация радиусов в редакторе
     private void OnDrawGizmosSelected()

@@ -6,6 +6,7 @@ public class GameplayController : IDisposable
     private readonly GameplayView _view;
     private readonly GameSaveInteractor _saveInteractor;
     private readonly GameLoadInteractor _loadInteractor;
+    private readonly GameModel _model;
 
     private readonly IAudioService _audio;
     private readonly ISceneLoader _sceneLoader;
@@ -14,11 +15,12 @@ public class GameplayController : IDisposable
     private readonly AudioClip _buttonHoverClip;
 
     public GameplayController(GameplayView view, IAudioService audio, GameSaveInteractor saveInteractor, GameLoadInteractor loadInteractor, ISceneLoader sceneLoader,
-                              AudioClip buttonClickClip, AudioClip buttonHoverClip)
+                              AudioClip buttonClickClip, AudioClip buttonHoverClip, GameModel model)
     {
         _view = view;
         _saveInteractor = saveInteractor;
         _loadInteractor = loadInteractor;
+        _model = model;
         _audio = audio;
         _sceneLoader = sceneLoader;
         _buttonClickClip = buttonClickClip;
@@ -28,11 +30,15 @@ public class GameplayController : IDisposable
         _view.OnSave += HandleSave;
         _view.OnLoad += HandleLoad;
         _view.OnMainMenu += HandleMainMenu;
+        _view.OnChangeGameMode += HandleGameMode;
 
         _view.OnResumeButtonHover += () => _audio.PlaySFX(_buttonHoverClip);
         _view.OnSaveButtonHover += () => _audio.PlaySFX(_buttonHoverClip);
         _view.OnLoadButtonHover += () => _audio.PlaySFX(_buttonHoverClip);
         _view.OnMainMenuButtonHover += () => _audio.PlaySFX(_buttonHoverClip);
+
+        _model.OnPeacefulModeChanged += HandlePeacefulModeChanged;
+        _view.UpdateGameModeText(_model.IsPeacefulMode);
     }
 
     private void HandleResume()
@@ -67,11 +73,26 @@ public class GameplayController : IDisposable
         _sceneLoader.LoadScene("MainMenu");
     }
 
+    private void HandleGameMode()
+    {
+        if (_model != null)
+            _model.IsPeacefulMode = !_model.IsPeacefulMode;
+    }
+
+    private void HandlePeacefulModeChanged(bool isPeaceful)
+    {
+        _view.UpdateGameModeText(isPeaceful);
+    }
+
     public void Dispose()
     {
         _view.OnResume -= HandleResume;
         _view.OnSave -= HandleSave;
         _view.OnLoad -= HandleLoad;
         _view.OnMainMenu -= HandleMainMenu;
+        _view.OnChangeGameMode -= HandleGameMode;
+
+        if (_model != null)
+            _model.OnPeacefulModeChanged -= HandlePeacefulModeChanged;
     }
 }

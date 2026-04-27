@@ -1,0 +1,55 @@
+using UnityEngine;
+
+public class BossAttackState : EnemyState
+{
+    private float timer;
+    private bool isStrongAttack;
+    private bool isMagicAttack;
+
+    public BossAttackState(EnemyStateMachine sm, bool isStrongAttack = false, bool isMagicAttack = false) : base(sm)
+    {
+        this.isStrongAttack = isStrongAttack;
+        this.isMagicAttack = isMagicAttack;
+    }
+
+    public override void Enter()
+    {
+        Context.Agent.isStopped = true;
+        StateMachine.LastAttackTime = Time.time;
+        timer = 0f;
+
+        // јнимаци€ уже запущена в агрессивном состо€нии
+    }
+
+    public override void Update()
+    {
+        timer += Time.deltaTime;
+
+        RotateTowardsPlayer();
+
+        if (timer >= Context.Settings.AttackDuration)
+        {
+            Context.OnAttackFinished();
+            StateMachine.ChangeState(new BossAggressiveState(StateMachine));
+        }
+    }
+
+    private void RotateTowardsPlayer()
+    {
+        if (Context.PlayerTransform != null)
+        {
+            Vector3 direction = (Context.PlayerTransform.position - Context.Transform.position).normalized;
+            direction.y = 0f;
+            if (direction.magnitude > 0.1f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                Context.Transform.rotation = Quaternion.Slerp(Context.Transform.rotation, targetRotation, Context.Settings.RotationSpeed * Time.deltaTime);
+            }
+        }
+    }
+
+    public override void Exit()
+    {
+        Context.OnAttackFinished();
+    }
+}

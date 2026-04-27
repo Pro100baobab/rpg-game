@@ -5,15 +5,11 @@ public class EvilWatcherDeathHandler : MonoBehaviour
 {
     private IHealth health;
     private EvilWatcher evilWatcher;
-    private Animator animator;
-    private NavMeshAgent agent;
 
     private void Awake()
     {
         health = GetComponent<IHealth>();
         evilWatcher = GetComponent<EvilWatcher>();
-        animator = GetComponent<Animator>();
-        agent = GetComponent<NavMeshAgent>();
     }
 
     private void OnEnable()
@@ -28,7 +24,6 @@ public class EvilWatcherDeathHandler : MonoBehaviour
     {
         if (health != null)
             health.OnDeath -= HandleDeath;
-
  
         if (EventSystem.Instance != null)
             EventSystem.Instance.OnRestart -= HandleRestart;
@@ -38,19 +33,11 @@ public class EvilWatcherDeathHandler : MonoBehaviour
 
     private void HandleDeath()
     {
-        if (evilWatcher != null)
-            evilWatcher.Die();
-        if (agent != null)
-            agent.isStopped = true;
-        if (animator != null)
-            animator.SetTrigger("Die");
+        evilWatcher?.HandleDeath();
     }
 
     private void HandleRestart()
     {
-        if (evilWatcher != null)
-            evilWatcher.Revival();
-        if (agent != null)
-            agent.isStopped = false;
+        evilWatcher?.HandleRestart();
     }
 }

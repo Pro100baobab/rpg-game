@@ -752,11 +752,14 @@ MonoBehaviour:
   player: {fileID: 0}
   animator: {fileID: 8122142127710922949}
   agent: {fileID: 6223241482391296543}
+  sword: {fileID: 2487882162086818195}
   detectionRange: 15
   attackRange: 3
   attackCooldown: 2.5
+  attackDuration: 2.3
+  rotationSpeed: 5
+  fleeHealthPercent: 0.3
   physicalDamage: 10
-  sword: {fileID: 2487882162086818195}
 --- !u!136 &4289471640460444390
 CapsuleCollider:
   m_ObjectHideFlags: 0

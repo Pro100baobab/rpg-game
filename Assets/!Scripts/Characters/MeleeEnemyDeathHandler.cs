@@ -5,15 +5,12 @@ public class MeleeEnemyDeathHandler : MonoBehaviour
 {
     private IHealth health;
     private MeleeEnemy meleeEnemy;
-    private Animator animator;
-    private NavMeshAgent agent;
+
 
     private void Awake()
     {
         health = GetComponent<IHealth>();
         meleeEnemy = GetComponent<MeleeEnemy>();
-        animator = GetComponent<Animator>();
-        agent = GetComponent<NavMeshAgent>();
     }
 
     private void OnEnable()
@@ -37,19 +34,11 @@ public class MeleeEnemyDeathHandler : MonoBehaviour
 
     private void HandleDeath()
     {
-        if (meleeEnemy != null)
-            meleeEnemy.Die();
-        if (agent != null)
-            agent.isStopped = true;
-        if (animator != null)
-            animator.SetTrigger("Die");
+        meleeEnemy?.HandleDeath();
     }
 
     private void HandleRestart()
     {
-        if (meleeEnemy != null)
-            meleeEnemy.Revival();
-        if (agent != null)
-            agent.isStopped = false;
+        meleeEnemy?.HandleRestart();
     }
 }

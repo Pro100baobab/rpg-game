@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using TMPro;
 
 public class GameplayView : MonoBehaviour
 {
@@ -9,11 +10,14 @@ public class GameplayView : MonoBehaviour
     [SerializeField] private Button saveButton;
     [SerializeField] private Button loadButton;
     [SerializeField] private Button mainMenuButton;
+    [SerializeField] private Button gameModeButton;
+    [SerializeField] private TextMeshProUGUI gameModeText;
 
     public event Action OnResume;
     public event Action OnSave;
     public event Action OnLoad;
     public event Action OnMainMenu;
+    public event Action OnChangeGameMode;
 
 
     public event Action OnResumeButtonHover;
@@ -28,12 +32,21 @@ public class GameplayView : MonoBehaviour
     public void OnMainMenuButtonPointerEnter() => OnMainMenuButtonHover?.Invoke();
 
 
+    public void UpdateGameModeText(bool isPeaceful)
+    {
+        if (!isPeaceful)
+            gameModeText.text = "Aggressive mode";
+        else
+            gameModeText.text = "Peaceful mode";
+    }
+
     private void Awake()
     {
         resumeButton.onClick.AddListener(() => OnResume?.Invoke());
         saveButton.onClick.AddListener(() => OnSave?.Invoke());
         loadButton.onClick.AddListener(() => OnLoad?.Invoke());
         mainMenuButton.onClick.AddListener(() => OnMainMenu?.Invoke());
+        gameModeButton.onClick.AddListener(() => OnChangeGameMode?.Invoke());
     }
 
     private void Update()

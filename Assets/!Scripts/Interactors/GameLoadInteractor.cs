@@ -21,6 +21,9 @@ public class GameLoadInteractor
         var data = _repository.Load();
         if (data == null) return false;
 
+        // Восстанавливаем игровой режим
+        _model.IsPeacefulMode = data.isPeacefulMode;
+
         // Восстанавливаем игрока
         if (_model.Player != null && data.player != null)
         {

@@ -16,6 +16,8 @@ public class GameSaveInteractor
     {
         var data = new GameData();
 
+        data.isPeacefulMode = _model.IsPeacefulMode;
+
         if (_model.Player != null)
         {
             var playerHealth = _model.Player.GetComponent<IHealth>();
