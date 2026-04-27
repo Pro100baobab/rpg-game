@@ -23,7 +23,6 @@ public class BossIdleState : EnemyState
 
     public override void OnDamaged()
     {
-        // Босс всегда агрится при получении урона, даже в мирном режиме
         StateMachine.ChangeState(new BossAggressiveState(StateMachine));
     }
 

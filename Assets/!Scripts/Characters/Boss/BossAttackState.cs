@@ -3,8 +3,8 @@ using UnityEngine;
 public class BossAttackState : EnemyState
 {
     private float timer;
-    private bool isStrongAttack;
-    private bool isMagicAttack;
+    private readonly bool isStrongAttack;
+    private readonly bool isMagicAttack;
 
     public BossAttackState(EnemyStateMachine sm, bool isStrongAttack = false, bool isMagicAttack = false) : base(sm)
     {
@@ -17,8 +17,6 @@ public class BossAttackState : EnemyState
         Context.Agent.isStopped = true;
         StateMachine.LastAttackTime = Time.time;
         timer = 0f;
-
-        // јнимаци€ уже запущена в агрессивном состо€нии
     }
 
     public override void Update()

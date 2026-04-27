@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class BossAggressiveState : EnemyState
 {
-    private float retreatChance = 0.3f;
+    private float retreatChance = 0.5f;
+    private bool canRetreatThisState;
 
     public BossAggressiveState(EnemyStateMachine sm) : base(sm) { }
 
@@ -10,6 +11,9 @@ public class BossAggressiveState : EnemyState
     {
         Context.Agent.isStopped = false;
         Context.Animator.SetFloat("Speed", 1f);
+
+        float healthPercent = Context.Health.CurrentHealth / Context.Health.MaxHealth;
+        canRetreatThisState = healthPercent < Context.Settings.FleeHealthPercent && Random.value < retreatChance;
     }
 
     public override void Update()
@@ -17,23 +21,22 @@ public class BossAggressiveState : EnemyState
         if (Context.PlayerTransform == null) return;
 
         float distance = Vector3.Distance(Context.Transform.position, Context.PlayerTransform.position);
-        float healthPercent = Context.Health.CurrentHealth / Context.Health.MaxHealth;
 
-        // Проверка на отступление при низком HP
-        if (healthPercent < Context.Settings.FleeHealthPercent && Random.value < retreatChance)
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ HP.
+        if (canRetreatThisState)
         {
             StateMachine.ChangeState(new BossRetreatState(StateMachine));
             return;
         }
 
-        // Если игрок вышел из зоны обнаружения – вернуться в Idle
+        // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ Idle
         if (distance > Context.Settings.DetectionRange)
         {
             StateMachine.ChangeState(new BossIdleState(StateMachine));
             return;
         }
 
-        // Проверка возможности атаки
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         if (distance <= Context.Settings.AttackRange)
         {
             if (Time.time >= StateMachine.LastAttackTime + Context.Settings.AttackCooldown)
@@ -43,7 +46,7 @@ public class BossAggressiveState : EnemyState
             }
         }
 
-        // Движение к игроку
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         MoveTowardsPlayer(distance);
     }
 
@@ -61,19 +64,19 @@ public class BossAggressiveState : EnemyState
         float roll = Random.value;
         if (roll < 0.3f)
         {
-            // Сильная атака
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             Context.PerformStrongAttack();
             StateMachine.ChangeState(new BossAttackState(StateMachine, isStrongAttack: true));
         }
         else if (roll < 0.6f)
         {
-            // Магическая атака
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             Context.PerformMagicAttack();
             StateMachine.ChangeState(new BossAttackState(StateMachine, isMagicAttack: true));
         }
         else
         {
-            // Обычная атака
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             Context.PerformAttack();
             StateMachine.ChangeState(new BossAttackState(StateMachine));
         }

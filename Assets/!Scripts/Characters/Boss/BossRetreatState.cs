@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BossRetreatState : EnemyState
 {
-    private float retreatTimer = 2f;
+    private float retreatTimer = 5f;
     private float timer;
 
     public BossRetreatState(EnemyStateMachine sm) : base(sm) { }
@@ -11,7 +11,7 @@ public class BossRetreatState : EnemyState
     {
         Context.Agent.isStopped = false;
         timer = 0f;
-        // Бежим от игрока
+        // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         Vector3 dirAway = (Context.Transform.position - Context.PlayerTransform.position).normalized;
         Context.Agent.SetDestination(Context.Transform.position + dirAway * 10f);
         Context.Animator.SetFloat("Speed", 1f);

@@ -96,7 +96,7 @@ public class MeleeEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysica
 
     public void PerformStrongAttack() { }
     public void PerformMagicAttack() { }
-    public void PerformSummon() { } // не используется
+    public void PerformSummon() { } // не используется (для босса)
 
     private void OnDestroy()
     {
