@@ -2,8 +2,11 @@ using UnityEngine;
 
 public class BossAggressiveState : EnemyState
 {
-    private float retreatChance = 0.5f;
+    private float retreatChance = 0.3f;
     private bool canRetreatThisState;
+
+    private float summonCooldown = 20f;
+    private float summonChance = 0.3f;
 
     public BossAggressiveState(EnemyStateMachine sm) : base(sm) { }
 
@@ -14,11 +17,25 @@ public class BossAggressiveState : EnemyState
 
         float healthPercent = Context.Health.CurrentHealth / Context.Health.MaxHealth;
         canRetreatThisState = healthPercent < Context.Settings.FleeHealthPercent && Random.value < retreatChance;
+
+        var boss = Context as BossEnemy;
+        if (boss != null)
+        {
+            summonCooldown = boss.SummonCooldown;
+            summonChance = boss.SummonChance;
+        }
     }
 
     public override void Update()
     {
         if (Context.PlayerTransform == null) return;
+
+        // Проверка на призыв
+        if (Time.time >= StateMachine.LastSummonTime + summonCooldown && Random.value < summonChance)
+        {
+            StateMachine.ChangeState(new BossSummonState(StateMachine));
+            return;
+        }
 
         float distance = Vector3.Distance(Context.Transform.position, Context.PlayerTransform.position);
 
@@ -46,7 +63,7 @@ public class BossAggressiveState : EnemyState
             }
         }
 
-        // Иначе следуем за игрком
+        // Иначе следуем за игроком
         MoveTowardsPlayer(distance);
     }
 

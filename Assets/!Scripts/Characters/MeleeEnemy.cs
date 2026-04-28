@@ -42,6 +42,8 @@ public class MeleeEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysica
     float IEnemySettings.AttackDuration => attackDuration;
     float IEnemySettings.RotationSpeed => rotationSpeed;
     float IEnemySettings.FleeHealthPercent => fleeHealthPercent;
+    int IEnemySettings.PhysicalDamage { get; set; }
+    public void EnableSwords() { }
 
 
     private EnemyStateMachine stateMachine;

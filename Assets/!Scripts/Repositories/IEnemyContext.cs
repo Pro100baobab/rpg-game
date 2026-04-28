@@ -12,6 +12,8 @@ public interface IEnemyContext
     IEnemySettings Settings { get; }
     bool IsPeacefulMode { get; }
     Transform[] PatrolPoints { get; }
+    // SwordAttackDetection LeftHandSword { get; }
+    // SwordAttackDetection RightHandSword { get; }
 
 
     void PerformAttack();
@@ -19,6 +21,7 @@ public interface IEnemyContext
     void PerformMagicAttack();
     void PerformSummon();
     void OnAttackFinished();
+    void EnableSwords();
 
     void SwitchToMonsterAnimator();
     void SwitchToRuinsAnimator();

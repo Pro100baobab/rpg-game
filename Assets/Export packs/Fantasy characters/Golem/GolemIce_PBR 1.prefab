@@ -237,21 +237,32 @@ MonoBehaviour:
   detectionRange: 20
   attackRange: 2
   physicalDamage: 5
-  baseAttackCooldown: 3
+  baseAttackCooldown: 6
   attackDuration: 2.5
   rotationSpeed: 5
-  fleeHealthPercent: 0.2
-  phase2CooldownMultiplier: 0.7
+  fleeHealthPercent: 0.31
+  phase2CooldownMultiplier: 0.5
   monsterAnimatorController: {fileID: 9100000, guid: 642e11c8c915c2e40b9732ae47cdecdf, type: 2}
   monsterAvatar: {fileID: 9000000, guid: 7c0474c2e1142e14d9a08423c9d1357f, type: 3}
   ruins: {fileID: 2202530155367361304}
-  beforeSpawnAnimator: {fileID: 0}
+  beforeSpawnAnimator: {fileID: 2202530155359934662}
   assembleDuration: 7.15
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  pillarPrefab: {fileID: 3982087219729390531, guid: 12f7219f44d5bac4e9b3594acd063a1e, type: 3}
+  summonCooldown: 30
+  summonChance: 0.4
+  summonDuration: 7
+  minSummonRadius: 3
+  maxSummonRadius: 20
+  riseHeight: 4
+  riseDuration: 1
+  pillarStayDuration: 2
+  fallDuration: 1.5
+  summonSpawnInterval: 0.7
 --- !u!54 &6112916084528380191
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2996,6 +3007,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SwordAttackDetection
   defaultSwordForce: 20
+  swordForce: 0
 --- !u!65 &8660125636510464255
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3119,6 +3131,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SwordAttackDetection
   defaultSwordForce: 20
+  swordForce: 0
 --- !u!1 &5570706940024983244
 GameObject:
   m_ObjectHideFlags: 0

@@ -36,6 +36,7 @@ public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
     float IEnemySettings.AttackDuration => attackDuration;
     float IEnemySettings.RotationSpeed => rotationSpeed;
     float IEnemySettings.FleeHealthPercent => fleeHealthPercent;
+    int IEnemySettings.PhysicalDamage { get; set; }
 
 
     private EnemyStateMachine stateMachine;
@@ -95,6 +96,7 @@ public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
     public void PerformSummon() { }
     public void SwitchToMonsterAnimator() { }
     public void SwitchToRuinsAnimator() { }
+    public void EnableSwords() { }
 
 
     // Визуализация радиусов в редакторе

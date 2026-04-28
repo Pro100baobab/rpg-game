@@ -4,10 +4,10 @@ public class SwordAttackDetection : MonoBehaviour
 {
     [Tooltip("Значение урона по умолчанию, если не найден IPhysicalDamageProvider")]
     [SerializeField] private int defaultSwordForce = 10;
+    [SerializeField] private int swordForce;
 
-    private MeshCollider swordCollider;
+    private Collider swordCollider;
     private IPhysicalDamageProvider damageProvider;
-    private int swordForce;
     private float delay = 1f;
     private float lastUsedTime = 0f;
     private bool isDelay = false;
@@ -34,7 +34,7 @@ public class SwordAttackDetection : MonoBehaviour
     {
         swordCollider = GetComponent<MeshCollider>();
 
-        var damageProvider = transform.root.GetComponent<IPhysicalDamageProvider>();
+        damageProvider = transform.root.GetComponent<IPhysicalDamageProvider>();
 
         if (damageProvider != null)
             swordForce = damageProvider.PhysicalDamage;
@@ -58,7 +58,7 @@ public class SwordAttackDetection : MonoBehaviour
 
         if (health != null)
         {
-            int damage = damageProvider != null ? 
+            swordForce = damageProvider != null ? 
                 damageProvider.PhysicalDamage : defaultSwordForce;
 
             health.TakeDamage(swordForce, DamageType.Physical);

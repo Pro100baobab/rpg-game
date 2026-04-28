@@ -3,6 +3,7 @@ public class EnemyStateMachine
     public IEnemyContext Context { get; private set; }
     public EnemyState CurrentState { get; private set; }
     public float LastAttackTime { get; set; } = -999f;
+    public float LastSummonTime { get; set; } = -999f;
 
     public EnemyStateMachine(IEnemyContext context)
     {
@@ -17,6 +18,7 @@ public class EnemyStateMachine
         if (GameModel.Instance != null)
             GameModel.Instance.OnPeacefulModeChanged += OnPeacefulModeChanged;
 
+        LastSummonTime = -999f;
         ChangeState(initialState);
     }
 
