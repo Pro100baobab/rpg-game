@@ -22,21 +22,21 @@ public class BossAggressiveState : EnemyState
 
         float distance = Vector3.Distance(Context.Transform.position, Context.PlayerTransform.position);
 
-        // �������� �� ����������� ��� ������ HP.
+        // Если сработал retreatChance и HP меньше FleeHealthPercent переход в отступление
         if (canRetreatThisState)
         {
             StateMachine.ChangeState(new BossRetreatState(StateMachine));
             return;
         }
 
-        // ���� ����� ����� �� ���� ����������� � ��������� � Idle
+        // Если игрок далеко, то переходим в Idle
         if (distance > Context.Settings.DetectionRange)
         {
             StateMachine.ChangeState(new BossIdleState(StateMachine));
             return;
         }
 
-        // �������� ����������� �����
+        // Если игрок близко - атакуем
         if (distance <= Context.Settings.AttackRange)
         {
             if (Time.time >= StateMachine.LastAttackTime + Context.Settings.AttackCooldown)
@@ -46,7 +46,7 @@ public class BossAggressiveState : EnemyState
             }
         }
 
-        // �������� � ������
+        // Иначе следуем за игрком
         MoveTowardsPlayer(distance);
     }
 
@@ -64,19 +64,19 @@ public class BossAggressiveState : EnemyState
         float roll = Random.value;
         if (roll < 0.3f)
         {
-            // ������� �����
+            // сильная атака
             Context.PerformStrongAttack();
             StateMachine.ChangeState(new BossAttackState(StateMachine, isStrongAttack: true));
         }
         else if (roll < 0.6f)
         {
-            // ���������� �����
+            // магическая атака
             Context.PerformMagicAttack();
             StateMachine.ChangeState(new BossAttackState(StateMachine, isMagicAttack: true));
         }
         else
         {
-            // ������� �����
+            // обычная атака
             Context.PerformAttack();
             StateMachine.ChangeState(new BossAttackState(StateMachine));
         }

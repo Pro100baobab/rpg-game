@@ -23,7 +23,9 @@ public class MeleeEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysica
     public int PhysicalDamage => physicalDamage;
 
     // IEnemyContext
+    public Transform[] PatrolPoints { get; }
     public Animator Animator => animator;
+    public Animator BeforeSpawnAnimator => null;
     public NavMeshAgent Agent => agent;
     public Transform Transform => transform;
     public Transform PlayerTransform => player;
@@ -96,7 +98,9 @@ public class MeleeEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysica
 
     public void PerformStrongAttack() { }
     public void PerformMagicAttack() { }
-    public void PerformSummon() { } // не используется (для босса)
+    public void PerformSummon() { }
+    public void SwitchToMonsterAnimator() { }
+    public void SwitchToRuinsAnimator() { }
 
     private void OnDestroy()
     {

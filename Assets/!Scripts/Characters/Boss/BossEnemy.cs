@@ -9,6 +9,8 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings
     [SerializeField] private NavMeshAgent agent;
     [SerializeField] private SwordAttackDetection swordRight;
     [SerializeField] private SwordAttackDetection swordLeft;
+    [SerializeField] private GameObject HPCanvas;
+    [SerializeField] private SkinnedMeshRenderer golemMesh;
 
 
     [Header("Boss Settings")]
@@ -21,16 +23,30 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings
     [SerializeField] private float fleeHealthPercent = 0.2f; // дл€ Retreat
     [SerializeField] private float phase2CooldownMultiplier = 0.7f;
 
+    [Header("Animator Switch")]
+    // [SerializeField] private RuntimeAnimatorController ruinsAnimatorController;
+    // [SerializeField] private Avatar ruinsAvatar;
+    [SerializeField] private RuntimeAnimatorController monsterAnimatorController;
+    [SerializeField] private Avatar monsterAvatar;
+    [SerializeField] private GameObject ruins;
+    [SerializeField] private Animator beforeSpawnAnimator;
+    [SerializeField] private float assembleDuration = 7.15f;
+
+    [Header("Patrol")]
+    [SerializeField] private Transform[] patrolPoints;
+
     public int PhysicalDamage => physicalDamage;
 
     // IEnemyContext
     public Animator Animator => animator;
+    public Animator BeforeSpawnAnimator => beforeSpawnAnimator;
     public NavMeshAgent Agent => agent;
     public Transform Transform => transform;
     public Transform PlayerTransform => player;
     public IHealth Health { get; private set; }
     public IEnemySettings Settings => this;
     public bool IsPeacefulMode => GameModel.Instance != null && GameModel.Instance.IsPeacefulMode;
+    public Transform[] PatrolPoints => patrolPoints;
 
     // IEnemySettings Ц AttackCooldown зависит от HP
     float IEnemySettings.DetectionRange => detectionRange;
@@ -57,8 +73,8 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings
 
     public void HandleRestart()
     {
-        stateMachine?.ChangeState(new BossIdleState(stateMachine));
-        agent.isStopped = false;
+        SwitchToRuinsAnimator(); // рестарт начинаетс€ с руин
+        // stateMachine?.ChangeState(new BossIdleState(stateMachine));
     }
 
     private void Awake()
@@ -73,7 +89,7 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings
         if (agent == null) agent = GetComponent<NavMeshAgent>();
 
         stateMachine = new EnemyStateMachine(this);
-        stateMachine.Initialize(new BossIdleState(stateMachine));
+        SwitchToRuinsAnimator();
 
         if (EventSystem.Instance != null)
             EventSystem.Instance.OnRestart += HandleRestart;
@@ -89,6 +105,28 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings
         stateMachine?.Dispose();
         if (EventSystem.Instance != null)
             EventSystem.Instance.OnRestart -= HandleRestart;
+    }
+
+    public void SwitchToMonsterAnimator()
+    {
+        agent.isStopped = false;
+        HPCanvas.SetActive(true);
+        ruins.SetActive(false);
+        golemMesh.enabled = true;
+        stateMachine?.ChangeState(new BossIdleState(stateMachine));
+        // animator.runtimeAnimatorController = monsterAnimatorController;
+        // animator.avatar = monsterAvatar;
+    }
+
+    public void SwitchToRuinsAnimator()
+    {
+        agent.isStopped = true;
+        golemMesh.enabled = false;
+        ruins.SetActive(true);
+        HPCanvas.SetActive(false);
+        stateMachine.Initialize(new RuinsState(stateMachine));
+        // animator.runtimeAnimatorController = ruinsAnimatorController;
+        // animator.avatar = ruinsAvatar;
     }
 
     // ћетоды атак и призыва
@@ -122,7 +160,7 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings
         animator.SetTrigger("Attack");
     }
 
-    public void PerformSummon()
+    public void PerformSummon() // пока что не используетс€
     {
         animator.SetTrigger("Summon");
         // призыв миньонов

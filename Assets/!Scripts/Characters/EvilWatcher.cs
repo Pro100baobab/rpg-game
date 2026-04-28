@@ -18,7 +18,9 @@ public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
     [SerializeField] private float fleeHealthPercent = 0.3f;
 
     // IEnemyContext
+    public Transform[] PatrolPoints { get; }
     public Animator Animator => animator;
+    public Animator BeforeSpawnAnimator => null;
     public NavMeshAgent Agent => agent;
     public Transform Transform => transform;
     public Transform PlayerTransform => player;
@@ -91,6 +93,9 @@ public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
     public void PerformMagicAttack() { }
     public void OnAttackFinished() { } // анимация сама нанесёт урон через ивент
     public void PerformSummon() { }
+    public void SwitchToMonsterAnimator() { }
+    public void SwitchToRuinsAnimator() { }
+
 
     // Визуализация радиусов в редакторе
     private void OnDrawGizmosSelected()

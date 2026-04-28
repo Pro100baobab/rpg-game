@@ -129,15 +129,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7307779601400952945, guid: 89a1af4efee0f89469782d07d8b8dce7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 16.038544
+      value: 16.30529
       objectReference: {fileID: 0}
     - target: {fileID: 7307779601400952945, guid: 89a1af4efee0f89469782d07d8b8dce7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.6322956
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7307779601400952945, guid: 89a1af4efee0f89469782d07d8b8dce7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -24.55418
+      value: -33.04369
       objectReference: {fileID: 0}
     - target: {fileID: 7307779601400952945, guid: 89a1af4efee0f89469782d07d8b8dce7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -749,6 +749,10 @@ PrefabInstance:
     - target: {fileID: 6702968976075458091, guid: c0ef1d2827dd65f43b83d1d1a2d50f35, type: 3}
       propertyPath: m_Name
       value: GolemIce_PBR
+      objectReference: {fileID: 0}
+    - target: {fileID: 6702968976075458091, guid: c0ef1d2827dd65f43b83d1d1a2d50f35, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7538034558877881863, guid: c0ef1d2827dd65f43b83d1d1a2d50f35, type: 3}
       propertyPath: m_LocalPosition.x
