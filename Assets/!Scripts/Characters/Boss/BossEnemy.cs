@@ -1,7 +1,20 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysicalDamageProvider
+public interface IElement
+{
+    Elements CurrentElement { get; }
+    void ChangeMeshByElement();
+    enum Elements
+    {
+        GROUND,
+        ROCK,
+        LAVA,
+        ICE,
+        SNOW
+    }
+}
+public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysicalDamageProvider, IElement
 {
     [Header("References")]
     [SerializeField] private Transform player;
@@ -48,6 +61,14 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
     [SerializeField] private float pillarStayDuration = 1f;
     [SerializeField] private float fallDuration = 1f;
     [SerializeField] private float summonSpawnInterval = 0.5f;
+
+    [Header("ElementsSettings")]
+    [SerializeField] private IElement.Elements currentElement = IElement.Elements.ROCK;
+    [SerializeField] private Material rockMaterial;
+    [SerializeField] private Material[] listGolemMaterials;
+    [SerializeField] private Material[] listRockMaterials;
+
+    public IElement.Elements CurrentElement => currentElement;
 
 
     // IEnemyContext
@@ -126,6 +147,8 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
 
         if (EventSystem.Instance != null)
             EventSystem.Instance.OnRestart += HandleRestart;
+
+        ChangeMeshByElement();
     }
 
     private void Update()
@@ -157,6 +180,7 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
         golemMesh.enabled = false;
         ruins.SetActive(true);
         HPCanvas.SetActive(false);
+
         stateMachine.Initialize(new RuinsState(stateMachine));
         // animator.runtimeAnimatorController = ruinsAnimatorController;
         // animator.avatar = ruinsAvatar;
@@ -205,5 +229,18 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
     {
         swordLeft.Use();
         swordRight.Use();
+    }
+
+    public void ChangeMeshByElement()
+    {
+        switch (CurrentElement)
+        {
+            case (IElement.Elements.GROUND): golemMesh.material = listGolemMaterials[0]; break;
+            case (IElement.Elements.ROCK): golemMesh.material = listGolemMaterials[1]; break;
+            case (IElement.Elements.LAVA): golemMesh.material = listGolemMaterials[2]; break;
+            case (IElement.Elements.ICE): golemMesh.material = listGolemMaterials[3]; break;
+            case (IElement.Elements.SNOW): golemMesh.material = listGolemMaterials[4]; break;
+            default: golemMesh.material = listGolemMaterials[0]; break;
+        }
     }
 }
