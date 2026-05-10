@@ -5,7 +5,7 @@
 
 ## Структура проекта
 
-- [Practice 1-2](https://github.com/Pro100baobab/rpg-game/tree/practice1-2) : добавление базового геймплея ✅
+- [Practice 1-2](https://github.com/Pro100baobab/rpg-game/tree/practice1-2) : принцип инверсии зависимостей и добавление базового геймплея ✅
 - [Practice 3](https://github.com/Pro100baobab/rpg-game/tree/practice3) : паттерн MVC для UI ✅
 - [Practice 4](https://github.com/Pro100baobab/rpg-game/tree/practice4) : паттерн Repository-Interactor ✅
 - [Practice 5](https://github.com/Pro100baobab/rpg-game/tree/practice5) : паттерн "Состояния" и машина состояний для поведения врагов ✅
