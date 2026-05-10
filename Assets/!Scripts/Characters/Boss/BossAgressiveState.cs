@@ -7,6 +7,9 @@ public class BossAggressiveState : EnemyState
 
     private float summonCooldown = 20f;
     private float summonChance = 0.3f;
+    private float farRangedDistance = 20f;
+
+    private BossEnemy boss => Context as BossEnemy;
 
     public BossAggressiveState(EnemyStateMachine sm) : base(sm) { }
 
@@ -23,6 +26,7 @@ public class BossAggressiveState : EnemyState
         {
             summonCooldown = boss.SummonCooldown;
             summonChance = boss.SummonChance;
+            farRangedDistance = boss.FarRangedDistance;
         }
     }
 
@@ -53,8 +57,18 @@ public class BossAggressiveState : EnemyState
             return;
         }
 
+        // Если игрок далеко, но в пределах дальнего радиуса для дальних атак и включен дальний режим - используем дальнюю атаку
+        if (distance < farRangedDistance && boss.CurrentAttackType == BossAttackType.Ranged)
+        {
+            if (Time.time >= StateMachine.LastAttackTime + Context.Settings.AttackCooldown)
+            {
+                ChooseAttack();
+                return;
+            }
+        }
+
         // Если игрок близко - атакуем
-        if (distance <= Context.Settings.AttackRange)
+        if (distance <= Context.Settings.AttackRange && boss.CurrentAttackType == BossAttackType.Melee)
         {
             if (Time.time >= StateMachine.LastAttackTime + Context.Settings.AttackCooldown)
             {

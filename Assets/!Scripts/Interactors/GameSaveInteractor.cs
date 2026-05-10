@@ -39,16 +39,38 @@ public class GameSaveInteractor
             if (enemy == null) continue;
 
             var health = enemy.GetComponent<IHealth>();
-            string type = enemy.GetComponent<MeleeEnemy>() != null ? "Melee" : "EvilWatcher";
+            if (health == null) continue;
 
-            data.enemies.Add(new EnemyData
+            var enemyData = new EnemyData
             {
-                enemyType = type,
                 posX = enemy.transform.position.x,
                 posY = enemy.transform.position.y,
                 posZ = enemy.transform.position.z,
                 health = health.CurrentHealth
-            });
+            };
+
+            var melee = enemy.GetComponent<MeleeEnemy>();
+            if (melee != null)
+            {
+                enemyData.enemyType = "Melee";
+                enemyData.meleeRightWeaponIndex = melee.RightWeaponIndex;
+                enemyData.meleeLeftWeaponIndex = melee.LeftWeaponIndex;
+            }
+            else
+            {
+                var watcher = enemy.GetComponent<EvilWatcher>();
+                if (watcher != null)
+                {
+                    enemyData.enemyType = "EvilWatcher";
+                    enemyData.evilWatcherAttackType = (int)watcher.CurrentAttackType;
+                }
+                else
+                {
+                    enemyData.enemyType = "Unknown";
+                }
+            }
+
+            data.enemies.Add(enemyData);
         }
 
         _repository.Save(data);

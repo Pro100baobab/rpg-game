@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2228516221217040253
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 298189645773521340}
+  m_Layer: 6
+  m_Name: SpikeSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &298189645773521340
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2228516221217040253}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5839478387944537234}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3242522164617433165
 GameObject:
   m_ObjectHideFlags: 0
@@ -59,6 +90,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -1710,6 +1742,7 @@ Transform:
   - {fileID: 4661467697777823525}
   - {fileID: 5839478387944536966}
   - {fileID: 5839478387944536984}
+  - {fileID: 298189645773521340}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &5839478387954406024
@@ -1789,11 +1822,19 @@ MonoBehaviour:
   player: {fileID: 0}
   animator: {fileID: 5839478387954406024}
   agent: {fileID: 5445431627548701723}
+  currentAttackType: 0
+  needlePrefab: {fileID: 1776334350577712566, guid: 7eddc62376edd4543b29e877ba7672f2, type: 3}
+  needleDelay: 0.1
+  needleSpeed: 10
+  projectileSpawnPoint: {fileID: 298189645773521340}
   chaseRange: 13
   attackRange: 10
   idealRange: 8.5
+  attackCooldown: 3.5
+  attackDuration: 2
+  needleDuration: 10
   rotationSpeed: 5
-  attackCooldown: 2
+  fleeHealthPercent: 0.3
 --- !u!135 &4804777434535564011
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2295,6 +2336,7 @@ SkinnedMeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   serializedVersion: 2
   m_Quality: 4
   m_UpdateWhenOffscreen: 0

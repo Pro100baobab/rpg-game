@@ -11,7 +11,7 @@ public class BossRetreatState : EnemyState
     {
         Context.Agent.isStopped = false;
         timer = 0f;
-        // ����� �� ������
+
         Vector3 dirAway = (Context.Transform.position - Context.PlayerTransform.position).normalized;
         Context.Agent.SetDestination(Context.Transform.position + dirAway * 10f);
         Context.Animator.SetFloat("Speed", 1f);

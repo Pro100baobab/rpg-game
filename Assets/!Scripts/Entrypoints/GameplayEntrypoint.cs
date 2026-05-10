@@ -5,6 +5,7 @@ public class GameplayEntrypoint : MonoBehaviour
 {
     [SerializeField] private GameplayView gameplayView;
     [SerializeField] private GameObject player;
+    [SerializeField] private SpawnManager spawnManager;
 
     [Header("SoundReferences")]
     [SerializeField] private AudioClip[] musicClip;
@@ -27,24 +28,17 @@ public class GameplayEntrypoint : MonoBehaviour
             audioService.PlayMusic(musicClip[clipNumber]);
         }
 
-
-        List<GameObject> enemyObjects = new List<GameObject>();
-
-        var spawner = FindAnyObjectByType<SpawnController>();
-        if (spawner != null)
-            enemyObjects.AddRange(spawner.Enemies);
-
+        // Создаём модель с пустым списком врагов (они появятся только по кнопке)
         _model = new GameModel
         {
             Player = player,
-            Enemies = new List<GameObject>(enemyObjects),
+            Enemies = new List<GameObject>(),
             IsPeacefulMode = true
         };
 
-
         var repository = new GameRepository(saveService);
         var saveInteractor = new GameSaveInteractor(repository, _model);
-        var loadInteractor = new GameLoadInteractor(repository, _model);
+        var loadInteractor = new GameLoadInteractor(repository, _model, spawnManager);
 
         _controller = new GameplayController(gameplayView, audioService, saveInteractor, loadInteractor, sceneLoader, buttonClickClip, buttonHoverClip, _model);
     }

@@ -12,9 +12,7 @@ public interface IEnemyContext
     IEnemySettings Settings { get; }
     bool IsPeacefulMode { get; }
     Transform[] PatrolPoints { get; }
-    // SwordAttackDetection LeftHandSword { get; }
-    // SwordAttackDetection RightHandSword { get; }
-
+ 
 
     void PerformAttack();
     void PerformStrongAttack();
@@ -25,4 +23,7 @@ public interface IEnemyContext
 
     void SwitchToMonsterAnimator();
     void SwitchToRuinsAnimator();
+
+
+    Coroutine StartCoroutine(System.Collections.IEnumerator routine);
 }

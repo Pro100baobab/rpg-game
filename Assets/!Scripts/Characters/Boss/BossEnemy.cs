@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering;
 
 public interface IElement
 {
@@ -14,6 +15,13 @@ public interface IElement
         SNOW
     }
 }
+
+public enum BossAttackType
+{
+    Melee,
+    Ranged
+}
+
 public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysicalDamageProvider, IElement
 {
     [Header("References")]
@@ -25,6 +33,17 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
     [SerializeField] private GameObject HPCanvas;
     [SerializeField] private SkinnedMeshRenderer golemMesh;
 
+    [Header("Ranged Attack")]
+    [SerializeField] private GameObject stonePrefab;
+    [SerializeField] private float stoneSpeed = 15f;
+    [SerializeField] private int rangedDamage = 10;
+    [SerializeField] private Transform projectileSpawnPoint;
+
+    [Header("Element Summon Prefabs")]
+    [SerializeField] private GameObject earthFissurePrefab;
+    [SerializeField] private GameObject fireMeteorPrefab;
+    [SerializeField] private GameObject iceShardPrefab;
+    [SerializeField] private GameObject icePathSpikePrefab;
 
     [Header("Boss Settings")]
     [SerializeField] private float detectionRange = 20f;
@@ -38,8 +57,6 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
 
 
     [Header("Animator Switch")]
-    // [SerializeField] private RuntimeAnimatorController ruinsAnimatorController;
-    // [SerializeField] private Avatar ruinsAvatar;
     [SerializeField] private RuntimeAnimatorController monsterAnimatorController;
     [SerializeField] private Avatar monsterAvatar;
     [SerializeField] private GameObject ruins;
@@ -49,7 +66,7 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
     [Header("Patrol")]
     [SerializeField] private Transform[] patrolPoints;
 
-    [Header("Summon")]
+    [Header("PillarSummon")]
     [SerializeField] private GameObject pillarPrefab;
     [SerializeField] private float summonCooldown = 20f;
     [SerializeField] private float summonChance = 0.4f;
@@ -64,12 +81,20 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
 
     [Header("ElementsSettings")]
     [SerializeField] private IElement.Elements currentElement = IElement.Elements.ROCK;
-    [SerializeField] private Material rockMaterial;
-    [SerializeField] private Material[] listGolemMaterials;
-    [SerializeField] private Material[] listRockMaterials;
+    [SerializeField] private Material[] listGolemMaterials; // индексы: GROUND, ROCK, LAVA, ICE, SNOW
+    [SerializeField] private Material[] listStoneMaterials; // индексы для камня дальнего боя
+
+    [Header("Attack Type")]
+    [SerializeField] private BossAttackType currentAttackType = BossAttackType.Melee;
+
+    private IBossProjectileFactory projectileFactory;
+    private IElementSummonFactory summonFactory;
 
     public IElement.Elements CurrentElement => currentElement;
+    public IElementSummonFactory SummonFactory => summonFactory ?? (summonFactory = new DefaultElementSummonFactory());
+    public BossAttackType CurrentAttackType => currentAttackType;
 
+    public float FarRangedDistance => detectionRange * 0.75f;
 
     // IEnemyContext
     public Animator Animator => animator;
@@ -81,13 +106,12 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
     public IEnemySettings Settings => this;
     public bool IsPeacefulMode => GameModel.Instance != null && GameModel.Instance.IsPeacefulMode;
     public Transform[] PatrolPoints => patrolPoints;
-    // public SwordAttackDetection LeftSwordHand => swordLeft;
-    // public SwordAttackDetection RightSwordHand => swordRight;
+
 
     // IEnemySettings – AttackCooldown зависит от HP
     float IEnemySettings.DetectionRange => detectionRange;
     float IEnemySettings.AttackRange => attackRange;
-    float IEnemySettings.IdealCombatDistance => 0f; // босс идёт прямо на игрока
+    float IEnemySettings.IdealCombatDistance => 0f;
     float IEnemySettings.AttackCooldown
     {
         get
@@ -99,9 +123,11 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
     float IEnemySettings.AttackDuration => attackDuration;
     float IEnemySettings.RotationSpeed => rotationSpeed;
     float IEnemySettings.FleeHealthPercent => fleeHealthPercent;
-    int IEnemySettings.PhysicalDamage { get  => physicalDamage; set {
-            physicalDamage = value;
-        } }
+    int IEnemySettings.PhysicalDamage
+    {
+        get => physicalDamage;
+        set => physicalDamage = value;
+    }
     int IPhysicalDamageProvider.PhysicalDamage => physicalDamage;
 
     private EnemyStateMachine stateMachine;
@@ -119,6 +145,12 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
     public float FallDuration => fallDuration;
     public float SummonSpawnInterval => summonSpawnInterval;
 
+    // Свойства для стихийного Summon
+    public GameObject EarthFissurePrefab => earthFissurePrefab;
+    public GameObject FireMeteorPrefab => fireMeteorPrefab;
+    public GameObject IceShardPrefab => iceShardPrefab;
+    public GameObject IcePathSpikePrefab => icePathSpikePrefab;
+
 
     public void HandleDeath()
     {
@@ -128,12 +160,13 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
     public void HandleRestart()
     {
         SwitchToRuinsAnimator(); // рестарт начинается с руин
-        // stateMachine?.ChangeState(new BossIdleState(stateMachine));
     }
 
     private void Awake()
     {
         Health = GetComponent<IHealth>();
+        projectileFactory = new BossProjectileFactory(stonePrefab, listStoneMaterials);
+        summonFactory = new DefaultElementSummonFactory();
     }
 
     private void Start()
@@ -170,8 +203,6 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
         ruins.SetActive(false);
         golemMesh.enabled = true;
         stateMachine?.ChangeState(new BossIdleState(stateMachine));
-        // animator.runtimeAnimatorController = monsterAnimatorController;
-        // animator.avatar = monsterAvatar;
     }
 
     public void SwitchToRuinsAnimator()
@@ -182,65 +213,116 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
         HPCanvas.SetActive(false);
 
         stateMachine.Initialize(new RuinsState(stateMachine));
-        // animator.runtimeAnimatorController = ruinsAnimatorController;
-        // animator.avatar = ruinsAvatar;
     }
 
     // Методы атак и призыва
     public void PerformAttack()
     {
-        EnableSwords();
+        if (currentAttackType == BossAttackType.Melee)
+        {
+            EnableSwords();
+            int attackIndex = Random.Range(1, 6);
+            animator.SetInteger("AttackIndex", attackIndex);
+            animator.SetTrigger("Attack");
+        }
+        else
+        {
+            PerformMagicAttack(); // дальняя атака
+        }
+    }
 
-        int attackIndex = Random.Range(1, 6); // обычная атака
-        animator.SetInteger("AttackIndex", attackIndex);
-        animator.SetTrigger("Attack");
+    private void PerformRangedAttack()
+    {
+        if (stonePrefab == null || player == null) return;
+
+        Vector3 offset = new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(0f, 1f), Random.Range(-0.5f, 0.5f));
+        GameObject stone = Instantiate(stonePrefab, projectileSpawnPoint.position + offset, Quaternion.identity);
+        
+        // Меняем материал камня на соответствующий стихии
+        MeshRenderer stoneRenderer = stone.GetComponent<MeshRenderer>();
+        if (stoneRenderer != null && listStoneMaterials.Length > 0)
+        {
+            int matIndex = (int)currentElement;
+            if (matIndex < listStoneMaterials.Length)
+                stoneRenderer.material = listStoneMaterials[matIndex];
+        }
+
+        // Запускаем камень в игрока
+        Rigidbody rb = stone.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            Vector3 direction = (new Vector3(player.position.x, player.position.y + Random.Range(0.5f, 1), player.position.z) - projectileSpawnPoint.position).normalized;
+            rb.linearVelocity = direction * stoneSpeed;
+        }
     }
 
     public void PerformStrongAttack()
     {
-        EnableSwords();
-
-        int attackIndex = Random.Range(6, 10); // сильная атака
-        animator.SetInteger("AttackIndex", attackIndex);
-        animator.SetTrigger("Attack");
+        if (currentAttackType == BossAttackType.Melee)
+        {
+            EnableSwords();
+            int attackIndex = Random.Range(6, 10);
+            animator.SetInteger("AttackIndex", attackIndex);
+            animator.SetTrigger("Attack");
+        }
+        else
+        {
+            PerformMagicAttack(); // для дальнего боя сильная атака такая же, как дальняя
+        }
     }
 
     public void PerformMagicAttack()
     {
-        EnableSwords();
+        // Магическая атака сейчас используется как дальняя атака (индекс 10)
+        if (currentAttackType == BossAttackType.Ranged)
+        {
+            animator.SetInteger("AttackIndex", 10);
+            animator.SetTrigger("Attack");
 
-        int attackIndex = 10; // магическая атака
-        animator.SetInteger("AttackIndex", attackIndex);
-        animator.SetTrigger("Attack");
+            // PerformRangedAttack(); - вызывать непосредственно здесь не нужно, так как анимация должна синхронизироваться с появлением камня через Animation Event
+        }
+        else
+        {
+            PerformAttack();
+        }
     }
 
-    public void PerformSummon() // пока что не используется
+    public void PerformSummon()
     {
         animator.SetTrigger("Summon");
-        // призыв миньонов
     }
 
     public void OnAttackFinished() {
-        swordLeft.NonUse();
-        swordRight.NonUse();
+        swordLeft?.NonUse();
+        swordRight?.NonUse();
     }
 
     public void EnableSwords()
     {
-        swordLeft.Use();
-        swordRight.Use();
+        swordLeft?.Use();
+        swordRight?.Use();
     }
 
     public void ChangeMeshByElement()
     {
-        switch (CurrentElement)
-        {
-            case (IElement.Elements.GROUND): golemMesh.material = listGolemMaterials[0]; break;
-            case (IElement.Elements.ROCK): golemMesh.material = listGolemMaterials[1]; break;
-            case (IElement.Elements.LAVA): golemMesh.material = listGolemMaterials[2]; break;
-            case (IElement.Elements.ICE): golemMesh.material = listGolemMaterials[3]; break;
-            case (IElement.Elements.SNOW): golemMesh.material = listGolemMaterials[4]; break;
-            default: golemMesh.material = listGolemMaterials[0]; break;
-        }
+        int index = (int)currentElement;
+        if (listGolemMaterials != null && index < listGolemMaterials.Length)
+            golemMesh.material = listGolemMaterials[index];
+    }
+
+    public void SetElement(IElement.Elements newElement)
+    {
+        currentElement = newElement;
+        ChangeMeshByElement();
+    }
+
+    public void SetAttackType(BossAttackType newType)
+    {
+        currentAttackType = newType;
+    }
+
+    public new Coroutine StartCoroutine(System.Collections.IEnumerator routine)
+    {
+        return ((MonoBehaviour)this).StartCoroutine(routine);
     }
 }

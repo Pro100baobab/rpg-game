@@ -127,6 +127,37 @@ Transform:
   - {fileID: 7656547910541681452}
   m_Father: {fileID: 6737894500019470563}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &761929348719864929
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 499526188340103572}
+  m_Layer: 6
+  m_Name: projectileSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &499526188340103572
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761929348719864929}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: 0.68, z: 2.36}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2671487549689514547}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1191984397937973791
 GameObject:
   m_ObjectHideFlags: 0
@@ -168,6 +199,7 @@ Transform:
   - {fileID: 7272862404375947851}
   - {fileID: 6197441590810189622}
   - {fileID: 2202530155367659320}
+  - {fileID: 499526188340103572}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 155.954, z: 0}
 --- !u!95 &550826439082187525
@@ -234,6 +266,14 @@ MonoBehaviour:
   swordLeft: {fileID: 5957749471487140364}
   HPCanvas: {fileID: 2152789640307803052}
   golemMesh: {fileID: 3211322119488813731}
+  stonePrefab: {fileID: 2388898887230948645, guid: 2237265d4882ab348b0e9afc176ae4c7, type: 3}
+  stoneSpeed: 15
+  rangedDamage: 10
+  projectileSpawnPoint: {fileID: 499526188340103572}
+  earthFissurePrefab: {fileID: 183370, guid: f0d5fb29203647c45bfdec87d72480dd, type: 3}
+  fireMeteorPrefab: {fileID: 100850, guid: 462dfb3d01ebecc4f8ff5ade57914727, type: 3}
+  iceShardPrefab: {fileID: 157914, guid: 6d835200792518542a1a8c56a69409b2, type: 3}
+  icePathSpikePrefab: {fileID: 184976, guid: e902d6290bf6a6442a6194b221a2db0f, type: 3}
   detectionRange: 20
   attackRange: 2
   physicalDamage: 5
@@ -263,6 +303,20 @@ MonoBehaviour:
   pillarStayDuration: 2
   fallDuration: 1.5
   summonSpawnInterval: 0.7
+  currentElement: 3
+  listGolemMaterials:
+  - {fileID: 2100000, guid: b76ebb03b2f07b444b4f1a16e2c75bbf, type: 2}
+  - {fileID: 2100000, guid: a025c27d7dd565948b85cf786cbdb8fe, type: 2}
+  - {fileID: 2100000, guid: 25f45178a601f0d41882581ebd162df0, type: 2}
+  - {fileID: 2100000, guid: fd4ca272389c88744bb2a6f36748ab0f, type: 2}
+  - {fileID: 2100000, guid: 1ea5809e558f8f44ab207c90e80983d1, type: 2}
+  listStoneMaterials:
+  - {fileID: 2100000, guid: f2515c5c05148ea439eb9fa0e0a79812, type: 2}
+  - {fileID: 2100000, guid: f34fdcc2a7d805541aed7667024a75a0, type: 2}
+  - {fileID: 2100000, guid: 63b6cb2a5418bca4bb69b8f6a9cae90c, type: 2}
+  - {fileID: 2100000, guid: 843e23713d81802408b0662f1b137d53, type: 2}
+  - {fileID: 2100000, guid: f176d9855589c334683ec8abc2001c17, type: 2}
+  currentAttackType: 0
 --- !u!54 &6112916084528380191
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -632,6 +686,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -848,6 +903,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361282
 GameObject:
@@ -937,6 +993,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361284
 GameObject:
@@ -1026,6 +1083,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361286
 GameObject:
@@ -1115,6 +1173,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361288
 GameObject:
@@ -1204,6 +1263,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361290
 GameObject:
@@ -1293,6 +1353,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361292
 GameObject:
@@ -1382,6 +1443,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361294
 GameObject:
@@ -1471,6 +1533,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361296
 GameObject:
@@ -1560,6 +1623,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361298
 GameObject:
@@ -1649,6 +1713,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361300
 GameObject:
@@ -1738,6 +1803,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361302
 GameObject:
@@ -1827,6 +1893,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361304
 GameObject:
@@ -2024,6 +2091,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361310
 GameObject:
@@ -2113,6 +2181,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361376
 GameObject:
@@ -2202,6 +2271,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361378
 GameObject:
@@ -2291,6 +2361,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361380
 GameObject:
@@ -2380,6 +2451,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361382
 GameObject:
@@ -2469,6 +2541,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361384
 GameObject:
@@ -2589,6 +2662,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361388
 GameObject:
@@ -2678,6 +2752,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2202530155367361390
 GameObject:
@@ -2767,6 +2842,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &3374876847275673788
 GameObject:
@@ -3496,6 +3572,7 @@ SkinnedMeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   serializedVersion: 2
   m_Quality: 4
   m_UpdateWhenOffscreen: 0

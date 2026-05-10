@@ -1,5 +1,14 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+
+
+public enum EvilWatcherAttackType
+{
+    Fireball,
+    Needle
+}
+
 
 public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
 {
@@ -8,17 +17,24 @@ public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
     [SerializeField] private Animator animator;
     [SerializeField] private NavMeshAgent agent;
 
+    [Header("Attack Settings")]
+    [SerializeField] private EvilWatcherAttackType currentAttackType = EvilWatcherAttackType.Fireball;
+    [SerializeField] private GameObject needlePrefab;
+    [SerializeField] private float needleDelay = 0.1f;
+    [SerializeField] private float needleSpeed = 10f;
+    [SerializeField] private Transform projectileSpawnPoint;
+
     [Header("Settings")]
     [SerializeField] private float chaseRange = 15f;
     [SerializeField] private float attackRange = 8f;
     [SerializeField] private float idealRange = 7f;
     [SerializeField] private float attackCooldown = 2f;
-    [SerializeField] private float attackDuration = 2f;      // длительность анимации атаки
+    [SerializeField] private float attackDuration = 2f;
+    [SerializeField] private float needleDuration = 10f;
     [SerializeField] private float rotationSpeed = 5f;
     [SerializeField] private float fleeHealthPercent = 0.3f;
 
     // IEnemyContext
-    public Transform[] PatrolPoints { get; }
     public Animator Animator => animator;
     public Animator BeforeSpawnAnimator => null;
     public NavMeshAgent Agent => agent;
@@ -27,6 +43,7 @@ public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
     public IHealth Health { get; private set; }
     public IEnemySettings Settings => this;
     public bool IsPeacefulMode => GameModel.Instance != null && GameModel.Instance.IsPeacefulMode;
+    public Transform[] PatrolPoints { get; }
 
     // IEnemySettings
     float IEnemySettings.DetectionRange => chaseRange;
@@ -36,7 +53,14 @@ public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
     float IEnemySettings.AttackDuration => attackDuration;
     float IEnemySettings.RotationSpeed => rotationSpeed;
     float IEnemySettings.FleeHealthPercent => fleeHealthPercent;
-    int IEnemySettings.PhysicalDamage { get; set; }
+    int IEnemySettings.PhysicalDamage
+    {
+        get => 0;
+        set { }
+    }
+
+    private IAttackTypeFactory attackTypeFactory;
+    public EvilWatcherAttackType CurrentAttackType { get; private set; }
 
 
     private EnemyStateMachine stateMachine;
@@ -55,6 +79,7 @@ public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
     private void Awake()
     {
         Health = GetComponent<IHealth>();
+        attackTypeFactory = new RandomAttackTypeFactory();
     }
 
     private void Start()
@@ -68,6 +93,8 @@ public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
 
         if (EventSystem.Instance != null)
             EventSystem.Instance.OnRestart += HandleRestart;
+
+        CurrentAttackType = attackTypeFactory.CreateAttackType();
     }
 
 
@@ -83,21 +110,64 @@ public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
             EventSystem.Instance.OnRestart -= HandleRestart;
     }
 
-    public void PerformAttack()
-    {
-        int attackIndex = Random.Range(1, 2);
-        animator.SetInteger("AttackIndex", attackIndex);
+    public void PerformAttack() => PerformMagicAttack(); // ” Ёвил ¬отчера только магическа€ атака, обычной нет
+    public void PerformStrongAttack() => PerformMagicAttack();
+    
+    public void PerformMagicAttack() {
+
+        int attackIndex = 1;
+
+        if (currentAttackType == EvilWatcherAttackType.Fireball)
+        {
+            attackIndex = 1; // индекс дл€ анимации огненного шара
+        }
+
+        else
+        {
+            attackIndex = 2; // индекс дл€ анимации иглы
+            StartCoroutine(NeedleAttackSequence());
+        }
+
         animator.SetTrigger("Attack");
+        animator.SetInteger("AttackIndex", attackIndex);
     }
 
-    public void PerformStrongAttack() { }
-    public void PerformMagicAttack() { }
+    private IEnumerator NeedleAttackSequence()
+    {
+        animator.SetTrigger("SpinAttack"); // анимаци€ вращени€
+        for (int angle = 0; angle < 360; angle += 45)
+        {
+            if (projectileSpawnPoint != null && needlePrefab != null)
+            {
+                Quaternion rotation = Quaternion.Euler(0, angle, 0) * projectileSpawnPoint.rotation;
+                var needle = Instantiate(needlePrefab, projectileSpawnPoint.position, rotation);
+                needle.GetComponent<SwordAttackDetection>()?.Use(); // активаци€ коллайдера дл€ нанесени€ урона 
+                Rigidbody rb = needle.GetComponent<Rigidbody>();
+                if (rb != null)
+                    rb.linearVelocity = needle.transform.forward * needleSpeed;
+                Destroy(needle, attackDuration); // уничтожение иглы после окончани€ атаки
+            }
+            yield return new WaitForSeconds(needleDelay);
+        }
+    }
+
+
     public void OnAttackFinished() { } // анимаци€ сама нанесЄт урон через ивент
+
     public void PerformSummon() { }
     public void SwitchToMonsterAnimator() { }
     public void SwitchToRuinsAnimator() { }
     public void EnableSwords() { }
 
+    public new Coroutine StartCoroutine(IEnumerator routine)
+    {
+        return ((MonoBehaviour)this).StartCoroutine(routine);
+    }
+
+    public void SetCurrentAttackType(EvilWatcherAttackType attackType)
+    {
+        currentAttackType = attackType;
+    }
 
     // ¬изуализаци€ радиусов в редакторе
     private void OnDrawGizmosSelected()

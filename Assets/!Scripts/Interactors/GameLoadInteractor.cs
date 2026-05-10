@@ -6,11 +6,13 @@ public class GameLoadInteractor
 {
     private readonly IGameRepository _repository;
     private readonly GameModel _model;
+    private readonly SpawnManager _spawnManager;
 
-    public GameLoadInteractor(IGameRepository repository, GameModel model)
+    public GameLoadInteractor(IGameRepository repository, GameModel model, SpawnManager spawnManager)
     {
         _repository = repository;
         _model = model;
+        _spawnManager = spawnManager;
     }
 
 
@@ -41,15 +43,11 @@ public class GameLoadInteractor
             EventSystem.Instance.AbilityCooldown(playerController.CooldownTime, elapsed); // обновляем UI
         }
 
-        // Восстанавливаем мобов
-        for (int i = 0; i < _model.Enemies.Count && i < data.enemies.Count; i++)
-        {
-            var enemy = _model.Enemies[i];
-            var enemyData = data.enemies[i];
+        _spawnManager.ClearAllEnemies();
 
-            enemy.transform.position = new Vector3(enemyData.posX, enemyData.posY, enemyData.posZ);
-            var health = enemy.GetComponent<IHealth>();
-            health.SetHealth(enemyData.health);
+        foreach (var enemyData in data.enemies)
+        {
+            _spawnManager.RestoreEnemy(enemyData);
         }
 
         return true;

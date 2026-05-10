@@ -22,4 +22,8 @@ public class EnemyData
     public string enemyType;
     public float posX, posY, posZ;
     public float health;
+    // Вариативность
+    public int meleeRightWeaponIndex = -1;
+    public int meleeLeftWeaponIndex = -1;
+    public int evilWatcherAttackType = 0; // 0 = Fireball, 1 = Needle
 }
