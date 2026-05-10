@@ -87,6 +87,10 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
     [Header("Attack Type")]
     [SerializeField] private BossAttackType currentAttackType = BossAttackType.Melee;
 
+    [Header("Event Channels")]
+    [SerializeField] private EnemyKilledEventChannelSO bossKilledEvent;
+    [SerializeField] private int scoreValue = 100;
+
     private IBossProjectileFactory projectileFactory;
     private IElementSummonFactory summonFactory;
 
@@ -155,6 +159,11 @@ public class BossEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysical
     public void HandleDeath()
     {
         stateMachine?.ChangeState(new DeadState(stateMachine));
+
+        bossKilledEvent?.RaiseEvent(new KillData { 
+            IsBoss = true, 
+            ScoreValue = scoreValue 
+        });
     }
 
     public void HandleRestart()

@@ -14,6 +14,10 @@ public class SpawnManager : MonoBehaviour
     [Header("Visuals")]
     [SerializeField] private GameObject spawnPointMarkerPrefab;
 
+    [Header("BossSOEvent")]
+    [SerializeField] private VoidEventChannelSO bossSpawnEvent;
+    [SerializeField] private GameObject bossObject;
+
     private List<Transform> spawnPoints = new List<Transform>();
     private List<GameObject> activeEnemies = new List<GameObject>();
 
@@ -94,6 +98,8 @@ public class SpawnManager : MonoBehaviour
         {
             GameModel.Instance.Enemies.Clear();
         }
+
+        bossObject.SetActive(false);
     }
 
     public void RestoreEnemy(EnemyData data)
@@ -134,5 +140,22 @@ public class SpawnManager : MonoBehaviour
         activeEnemies.Add(instance);
         if (GameModel.Instance != null)
             GameModel.Instance.Enemies.Add(instance);
+    }
+
+    // Boss spawn logic
+    private void Start()
+    {
+        bossSpawnEvent.OnEventRaised += ActivateBoss;
+    }
+
+    private void OnDestroy()
+    {
+        bossSpawnEvent.OnEventRaised -= ActivateBoss;
+    }
+
+    private void ActivateBoss()
+    {
+        if (bossObject != null)
+            bossObject.SetActive(true);
     }
 }

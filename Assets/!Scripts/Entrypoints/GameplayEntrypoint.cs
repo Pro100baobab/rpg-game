@@ -12,8 +12,23 @@ public class GameplayEntrypoint : MonoBehaviour
     [SerializeField] private AudioClip buttonHoverClip;
     [SerializeField] private AudioClip buttonClickClip;
 
+    [Header("SсriptableObjectEventSystem")]
+    [SerializeField] private EnemyKilledEventChannelSO enemyKilledEvent;
+    [SerializeField] private IntEventChannelSO scoreChangedEvent;
+    [SerializeField] private VoidEventChannelSO bossSpawnEvent;
+    [SerializeField] private VoidEventChannelSO victoryMusicEvent;
+
     private GameplayController _controller;
     private GameModel _model;
+
+    private ScoreManager scoreManager;
+    private KillManager killManager;
+
+    private void Awake()
+    {
+        scoreManager = new ScoreManager(scoreChangedEvent, enemyKilledEvent);
+        killManager = new KillManager(enemyKilledEvent, bossSpawnEvent, victoryMusicEvent);
+    }
 
     private void Start()
     {
@@ -43,5 +58,10 @@ public class GameplayEntrypoint : MonoBehaviour
         _controller = new GameplayController(gameplayView, audioService, saveInteractor, loadInteractor, sceneLoader, buttonClickClip, buttonHoverClip, _model);
     }
 
-    private void OnDestroy() => _controller?.Dispose();
+    private void OnDestroy()
+    {
+        _controller?.Dispose();
+        scoreManager?.Dispose();
+        killManager?.Dispose();
+    }
 }

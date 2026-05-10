@@ -26,6 +26,10 @@ public class MeleeEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysica
     [Header("Damage")]
     [SerializeField] private int physicalDamage = 10;
 
+    [Header("Events")]
+    [SerializeField] private EnemyKilledEventChannelSO enemyKilledEvent;
+    [SerializeField] private int scoreValue = 10;
+
     public int PhysicalDamage => physicalDamage;
     public int RightWeaponIndex { get; private set; } = -1;
     public int LeftWeaponIndex { get; private set; } = -1;
@@ -64,6 +68,11 @@ public class MeleeEnemy : MonoBehaviour, IEnemyContext, IEnemySettings, IPhysica
     public void HandleDeath()
     {
         stateMachine?.ChangeState(new DeadState(stateMachine));
+
+        enemyKilledEvent?.RaiseEvent(new KillData { 
+            IsBoss = false, 
+            ScoreValue = scoreValue 
+        });
     }
 
     public void HandleRestart()

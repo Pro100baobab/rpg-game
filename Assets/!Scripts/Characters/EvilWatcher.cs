@@ -34,6 +34,11 @@ public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
     [SerializeField] private float rotationSpeed = 5f;
     [SerializeField] private float fleeHealthPercent = 0.3f;
 
+    [Header("Events")]
+    [SerializeField] private EnemyKilledEventChannelSO enemyKilledEvent;
+    [SerializeField] private int scoreValue = 15;
+
+
     // IEnemyContext
     public Animator Animator => animator;
     public Animator BeforeSpawnAnimator => null;
@@ -68,6 +73,11 @@ public class EvilWatcher : MonoBehaviour, IEnemyContext, IEnemySettings
     public void HandleDeath()
     {
         stateMachine?.ChangeState(new DeadState(stateMachine));
+
+        enemyKilledEvent?.RaiseEvent(new KillData {
+            IsBoss = false,
+            ScoreValue = scoreValue 
+        });
     }
 
     public void HandleRestart()

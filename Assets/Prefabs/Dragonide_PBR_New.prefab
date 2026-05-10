@@ -406,6 +406,8 @@ MonoBehaviour:
   rotationSpeed: 5
   fleeHealthPercent: 0.3
   physicalDamage: 10
+  enemyKilledEvent: {fileID: 11400000, guid: a3bcb818ffe4a2c49a73566640eeb35f, type: 2}
+  scoreValue: 10
 --- !u!136 &3689516970471090327
 CapsuleCollider:
   m_ObjectHideFlags: 0

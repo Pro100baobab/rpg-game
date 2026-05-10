@@ -317,6 +317,8 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 843e23713d81802408b0662f1b137d53, type: 2}
   - {fileID: 2100000, guid: f176d9855589c334683ec8abc2001c17, type: 2}
   currentAttackType: 0
+  bossKilledEvent: {fileID: 11400000, guid: a3bcb818ffe4a2c49a73566640eeb35f, type: 2}
+  scoreValue: 100
 --- !u!54 &6112916084528380191
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -5,13 +5,23 @@ using TMPro;
 
 public class GameplayView : MonoBehaviour
 {
+    [Header("GeneralPanel")]
     [SerializeField] private GameObject menuPanel;
+
+    [Header("MenuButtons")]
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button saveButton;
     [SerializeField] private Button loadButton;
     [SerializeField] private Button mainMenuButton;
+
+    [Header("GameModel")]
     [SerializeField] private Button gameModeButton;
     [SerializeField] private TextMeshProUGUI gameModeText;
+
+    [Header("EventSystem")]
+    [SerializeField] private IntEventChannelSO scoreChangedEvent;
+    [SerializeField] private TextMeshProUGUI scoreText;
+
 
     public event Action OnResume;
     public event Action OnSave;
@@ -49,12 +59,28 @@ public class GameplayView : MonoBehaviour
         gameModeButton.onClick.AddListener(() => OnChangeGameMode?.Invoke());
     }
 
+    private void Start()
+    {
+        scoreChangedEvent.OnEventRaised += UpdateText;
+        UpdateText(0);
+    }
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             ToggleMenu();
         }
+    }
+
+    private void OnDestroy()
+    {
+        scoreChangedEvent.OnEventRaised -= UpdateText;
+    }
+
+    private void UpdateText(int score)
+    {
+        scoreText.text = $"Score: {score}";
     }
 
     public void ToggleMenu()

@@ -1835,6 +1835,8 @@ MonoBehaviour:
   needleDuration: 10
   rotationSpeed: 5
   fleeHealthPercent: 0.3
+  enemyKilledEvent: {fileID: 11400000, guid: a3bcb818ffe4a2c49a73566640eeb35f, type: 2}
+  scoreValue: 15
 --- !u!135 &4804777434535564011
 SphereCollider:
   m_ObjectHideFlags: 0
